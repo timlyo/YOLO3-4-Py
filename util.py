@@ -83,16 +83,12 @@ def find_dist_packages():
     return dist_packages
 
 def get_libs(package):
-    call_name = "pkg-config"
-    if 'PKG_CONFIG' in os.environ:
-        call_name = "pkg-config"
+    out = subprocess.run(["python3-config", "--libs", "--embed"], stdout=subprocess.PIPE)
 
-    command = call_name + " --libs " + package
+    if out.returncode != 0:
+        out = subprocess.run(["python3-config", "--libs"], stdout=subprocess.PIPE)
 
-    proc = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = proc.communicate()
-
-    return out.rstrip().decode('utf-8')
+    return out.stdout.rstrip().decode('utf-8')
 
 def get_readme():
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),"pypi_readme.md"),"r") as f:
